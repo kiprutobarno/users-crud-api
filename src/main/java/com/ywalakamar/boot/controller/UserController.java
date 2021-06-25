@@ -1,11 +1,8 @@
 package com.ywalakamar.boot.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import com.ywalakamar.boot.model.User;
 import com.ywalakamar.boot.repository.UserRepository;
+import com.ywalakamar.boot.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,42 +15,37 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class UserController {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    private UserService service;
+
+    public UserController(UserService service) {
+        this.service = service;
+    }
+
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers() {
+    public ResponseEntity<?> getUsers() {
         try {
-            List<User> users = new ArrayList<>();
-            for (User user : userRepository.findAll()) {
-                // add item to the list
-                users.add(user);
-
-            }
-
-            // returns the users list
-            return new ResponseEntity<>(users, HttpStatus.OK);
-
+            return ResponseEntity.ok(service.readAll());
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<?> createUser(@RequestBody User user) {
         try {
-            // create new user object from the request body
-            user = new User(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword());
-            // create user object in the database table
-            User _user = userRepository.save(user);
-            // return saved user and HttpStatus
-            return new ResponseEntity<>(_user, HttpStatus.CREATED);
+            return new ResponseEntity<>(service.create(user), HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -61,17 +53,10 @@ public class UserController {
 
     @PutMapping("/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
-        try {
-            Optional<User> data = userRepository.findById(id);
-            if (data.isPresent()) {
-                User usr = data.get();
-                usr.setFirstName(user.getFirstName());
-                usr.setLastName(user.getLastName());
-                usr.setEmail(user.getEmail());
-                usr.setPassword(user.getPassword());
-                userRepository.save(usr);
 
-                return new ResponseEntity<>(usr, HttpStatus.OK);
+        try {
+            if (service.update(id, user) != null) {
+                return new ResponseEntity<>(service.update(id, user), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -79,14 +64,17 @@ public class UserController {
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id) {
         try {
-            userRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+            if (service.readOne(id) != null) {
+                service.delete(id);
+                return new ResponseEntity<>(HttpStatus.ACCEPTED);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
