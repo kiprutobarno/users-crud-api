@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - add-github-actions
+      - add-home-endpoint
       - main
 
 jobs:
