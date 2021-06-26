@@ -32,6 +32,15 @@ public class UserController {
         this.service = service;
     }
 
+    @GetMapping("/")
+    public ResponseEntity<?> welcome() {
+        try {
+            return ResponseEntity.ok("Welcome to Spring boot CRUD App");
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/users")
     public ResponseEntity<?> getUsers() {
         try {
