@@ -14,13 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-// import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
-// @RequestMapping("/")
 public class UserController {
     @Autowired
     UserRepository userRepository;
@@ -35,7 +33,7 @@ public class UserController {
     @GetMapping("/")
     public ResponseEntity<?> welcome() {
         try {
-            return ResponseEntity.ok("Welcome to Spring boot CRUD App");
+            return ResponseEntity.ok("Welcome to my Spring boot CRUD App");
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -50,7 +48,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/users")
+    @PostMapping("/api/v1/users")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> createUser(@RequestBody User user) {
         try {
@@ -60,7 +58,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/users/{id}")
+    @PutMapping("/api/v1/users{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
 
         try {
@@ -75,7 +73,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/api/v1/users/{id}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id) {
         try {
             if (service.readOne(id) != null) {
