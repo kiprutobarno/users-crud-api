@@ -48,6 +48,15 @@ public class UserController {
         }
     }
 
+    @GetMapping("/api/v1/users/{id}")
+    public ResponseEntity<?> getUser(@PathVariable("id") long id) {
+        try {
+            return ResponseEntity.ok(service.readOne(id));
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/api/v1/users")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> createUser(@RequestBody User user) {
@@ -58,15 +67,18 @@ public class UserController {
         }
     }
 
-    @PutMapping("/api/v1/users{id}")
-    public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
+    @PutMapping("/api/v1/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable("id") long id, @RequestBody User user) {
 
         try {
-            if (service.update(id, user) != null) {
-                return new ResponseEntity<>(service.update(id, user), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
+            // return new ResponseEntity<>(service.update(id, user), HttpStatus.OK);
+            // User updated = service.update(id, user);
+            // if (updated != null) {
+            // return new ResponseEntity<>(updated, HttpStatus.OK);
+            // } else {
+            // return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            // }
+            return new ResponseEntity<>(service.update(id, user), HttpStatus.OK);
 
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
