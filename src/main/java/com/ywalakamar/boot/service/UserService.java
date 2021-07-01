@@ -80,8 +80,9 @@ public class UserService {
 
     public User update(long id, User user) {
         try {
-            if (repository.findById(id) != null) {
-                User usr = new User();
+            Optional<User> data = repository.findById(id);
+            if (data.isPresent()) {
+                User usr = data.get();
                 usr.setFirstName(user.getFirstName());
                 usr.setLastName(user.getLastName());
                 usr.setEmail(user.getEmail());
