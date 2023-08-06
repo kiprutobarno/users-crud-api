@@ -4,6 +4,8 @@ import com.ywalakamar.boot.model.User;
 import com.ywalakamar.boot.repository.UserRepository;
 import com.ywalakamar.boot.service.UserService;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class UserController {
     @Autowired
@@ -59,7 +61,7 @@ public class UserController {
 
     @PostMapping("/api/v1/users")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> createUser(@RequestBody User user) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody User user) {
         try {
             return new ResponseEntity<>(service.create(user), HttpStatus.CREATED);
         } catch (Exception e) {
@@ -68,7 +70,7 @@ public class UserController {
     }
 
     @PutMapping("/api/v1/users/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable("id") long id, @RequestBody User user) {
+    public ResponseEntity<?> updateUser(@PathVariable("id") long id, @Valid @RequestBody User user) {
 
         try {
             // return new ResponseEntity<>(service.update(id, user), HttpStatus.OK);
