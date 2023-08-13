@@ -1,4 +1,4 @@
-package com.ywalakamar.boot;
+package com.ywalakamar.crud;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

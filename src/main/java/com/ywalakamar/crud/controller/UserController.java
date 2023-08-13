@@ -1,8 +1,4 @@
-package com.ywalakamar.boot.controller;
-
-import com.ywalakamar.boot.model.User;
-import com.ywalakamar.boot.repository.UserRepository;
-import com.ywalakamar.boot.service.UserService;
+package com.ywalakamar.crud.controller;
 
 import javax.validation.Valid;
 
@@ -18,6 +14,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ywalakamar.crud.dto.UserRequest;
+import com.ywalakamar.crud.repository.UserRepository;
+import com.ywalakamar.crud.services.UserService;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -44,16 +44,16 @@ public class UserController {
     @GetMapping("/api/v1/users")
     public ResponseEntity<?> getUsers() {
         try {
-            return ResponseEntity.ok(service.readAll());
+            return ResponseEntity.ok(service.getAll());
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/api/v1/users/{id}")
-    public ResponseEntity<?> getUser(@PathVariable("id") long id) {
+    public ResponseEntity<?> getUser(@PathVariable("id") int id) {
         try {
-            return ResponseEntity.ok(service.readOne(id));
+            return ResponseEntity.ok(service.findUserById(id));
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -61,7 +61,7 @@ public class UserController {
 
     @PostMapping("/api/v1/users")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest user) {
         try {
             return new ResponseEntity<>(service.create(user), HttpStatus.CREATED);
         } catch (Exception e) {
@@ -70,16 +70,9 @@ public class UserController {
     }
 
     @PutMapping("/api/v1/users/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable("id") long id, @Valid @RequestBody User user) {
+    public ResponseEntity<?> updateUser(@PathVariable("id") int id, @Valid @RequestBody UserRequest user) {
 
         try {
-            // return new ResponseEntity<>(service.update(id, user), HttpStatus.OK);
-            // User updated = service.update(id, user);
-            // if (updated != null) {
-            // return new ResponseEntity<>(updated, HttpStatus.OK);
-            // } else {
-            // return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            // }
             return new ResponseEntity<>(service.update(id, user), HttpStatus.OK);
 
         } catch (Exception e) {
@@ -88,9 +81,9 @@ public class UserController {
     }
 
     @DeleteMapping("/api/v1/users/{id}")
-    public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id) {
+    public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") int id) {
         try {
-            if (service.readOne(id) != null) {
+            if (service.findUserById(id) != null) {
                 service.delete(id);
                 return new ResponseEntity<>(HttpStatus.ACCEPTED);
             } else {
