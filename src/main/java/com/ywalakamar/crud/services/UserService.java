@@ -6,60 +6,65 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ywalakamar.crud.dto.UserRequest;
+import com.ywalakamar.crud.converters.UserConverter;
+import com.ywalakamar.crud.dto.UserDto;
 import com.ywalakamar.crud.exceptions.MissingArgumentException;
 import com.ywalakamar.crud.exceptions.RecordNotFoundException;
 import com.ywalakamar.crud.model.User;
 import com.ywalakamar.crud.repository.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository usersDB;
 
-    public User create(UserRequest req) {
-        User user = User.build(0, req.getFirstName(), req.getLastName(), req.getEmail() != null ? req.getEmail() : null,
-                req.getPassword());
-        return usersDB.save(user);
+    @Autowired
+    private UserConverter converter;
+
+    public UserDto create(UserDto userDTO) {
+        User user = converter.dtoToEntity(userDTO);
+        user = usersDB.save(user);
+        return converter.entityToDto(user);
     }
 
-    public List<User> getAll() {
-        return usersDB.findAll();
+    public List<UserDto> getAll() {
+        List<User> users = usersDB.findAll();
+        return converter.entitiesToDtos(users);
     }
 
-    public User findUserById(int id) {
+    public UserDto findUserById(int id) {
         if (id == 0) {
             throw new MissingArgumentException("Id must be specified!");
         }
         if (!usersDB.findById(id).isPresent()) {
             throw new RecordNotFoundException("User with id " + id + " not found!");
         }
-        return usersDB.findById(id).get();
-    }
+        // Get user from repository
+        User user = usersDB.findById(id).get();
 
-    public User findUserByUsername(String username) {
-        if (username == null) {
-            throw new MissingArgumentException("Username must be specified!");
-
-        }
-        if (!usersDB.findByUsername(username).isPresent()) {
-            throw new RecordNotFoundException("User with id " + username + " not found!");
-        }
-        return usersDB.findByUsername(username).get();
+        // Convert retrieved user to DTO
+        return converter.entityToDto(user);
 
     }
 
-    public User update(int id, UserRequest user) {
+    public UserDto update(int id, UserDto userDto) {
+        User update = converter.dtoToEntity(userDto);
         try {
             Optional<User> dbRecord = usersDB.findById(id);
             if (dbRecord.isPresent()) {
                 User dbUser = dbRecord.get();
-                dbUser.setFirstName(user.getFirstName());
-                dbUser.setLastName(user.getLastName());
-                dbUser.setEmail(user.getEmail());
-                dbUser.setPassword(user.getEmail());
-                return usersDB.save(dbUser);
+
+                dbUser.setFirstName(update.getFirstName());
+                dbUser.setLastName(update.getLastName());
+                dbUser.setEmail(update.getEmail());
+                dbUser.setPassword(update.getPassword());
+                usersDB.save(dbUser);
+                log.info("SAVE USER:" + usersDB.save(dbUser));
+                return converter.entityToDto(dbUser);
             } else {
                 return null;
             }

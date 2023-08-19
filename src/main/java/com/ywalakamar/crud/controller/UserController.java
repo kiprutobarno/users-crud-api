@@ -1,5 +1,7 @@
 package com.ywalakamar.crud.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +14,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ywalakamar.crud.dto.UserRequest;
+import com.ywalakamar.crud.dto.UserDto;
 import com.ywalakamar.crud.repository.UserRepository;
+import com.ywalakamar.crud.response.Response;
 import com.ywalakamar.crud.services.UserService;
+import com.ywalakamar.crud.utils.StatusCode;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -32,52 +35,27 @@ public class UserController {
         this.service = service;
     }
 
-    @GetMapping("/")
-    public ResponseEntity<?> welcome() {
-        try {
-            return ResponseEntity.ok("Welcome to my Spring boot CRUD App");
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/api/v1/users")
-    public ResponseEntity<?> getUsers() {
-        try {
-            return ResponseEntity.ok(service.getAll());
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public Response getUsers() {
+
+        List<UserDto> users = service.getAll();
+        return new Response(true, 200, "Success", users);
     }
 
     @GetMapping("/api/v1/users/{id}")
-    public ResponseEntity<?> getUser(@PathVariable("id") int id) {
-        try {
-            return ResponseEntity.ok(service.findUserById(id));
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public Response getUserById(@PathVariable("id") int id) {
+        UserDto user = service.findUserById(id);
+        return new Response(true, StatusCode.SUCCESS, "Success", user);
     }
 
     @PostMapping("/api/v1/users")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest user) {
-        try {
-            return new ResponseEntity<>(service.create(user), HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public Response createUser(@Valid @RequestBody UserDto userDto) {
+        return new Response(true, 201, "Success", service.create(userDto));
     }
 
     @PutMapping("/api/v1/users/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable("id") int id, @Valid @RequestBody UserRequest user) {
-
-        try {
-            return new ResponseEntity<>(service.update(id, user), HttpStatus.OK);
-
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public Response updateUser(@PathVariable("id") int id, @Valid @RequestBody UserDto user) {
+        return new Response(true, StatusCode.SUCCESS, "Success", service.update(id, user));
     }
 
     @DeleteMapping("/api/v1/users/{id}")
